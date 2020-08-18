@@ -1,0 +1,17 @@
+#
+# Main snowsql command
+#
+snowsql -a dtcipoc.us-east-1 -u chawal
+
+# switch Virtual Warehouse
+use warehouse DEMO_WH;
+
+# switch DATABASE
+use database "LINEAR_POC_DB";
+
+# switch SCHEMA
+use schema LNR_POC:
+
+#
+# Confirm the promot to show: chawal#DEMO_WH@LINEAR_POC_DB.LNR_POC
+#
