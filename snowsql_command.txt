@@ -15,3 +15,4 @@ use schema LNR_POC:
 #
 # Confirm the promot to show: chawal#DEMO_WH@LINEAR_POC_DB.LNR_POC
 #
+select current_warehouse() My_Warehouse, current_database() My_Database, current_schema() My_Schema;
