@@ -1,5 +1,5 @@
 #
-# Main snowsql command
+# Main snowsql command (This will trigger auth thru MFA)
 #
 snowsql -a dtcipoc.us-east-1 -u chawal
 
@@ -16,3 +16,57 @@ use schema LNR_POC:
 # Confirm the promot to show: chawal#DEMO_WH@LINEAR_POC_DB.LNR_POC
 #
 select current_warehouse() My_Warehouse, current_database() My_Database, current_schema() My_Schema;
+
+
+
+### --- Create Table DDL --- ###
+
+# DDL
+create or replace table emp_basic (
+first_name string ,
+last_name string ,
+email string ,
+streetaddress string ,
+city string ,
+start_date date
+);
+
+#
+# Confirm table structure
+#
+describe table emp_basic;
+
+
+### --- LOAD data into STAGE --- ###
+
+# LOAD local CSV files from folder "/Users/chawl001/Dev/scripts/snowflake/test_data/" into TABLE STAGE %emp_basic
+put file:///Users/chawl001/Dev/scripts/snowflake/test_data/employees*.csv @LINEAR_POC_DB.LNR_POC.%emp_basic;
+
+# Confirm loaded files in STAGE
+list @LINEAR_POC_DB.LNR_POC.%emp_basic;
+
+
+
+### --- LOAD data from STAGE into TABLE --- ###
+
+copy into emp_basic
+  from @%emp_basic
+  file_format = (type = csv field_optionally_enclosed_by='"')
+  pattern = '.*employees0[1-5].csv.gz'
+  on_error = 'skip_file';
+
+# 
+# Confirm table load
+#
+select count(*) from emp_basic;
+
+### --- Output as CVS ###
+
+!set output_format=csv
+!set header=true
+!spool ./test_output/emp_baisc_tabledata.csv
+
+# Output would be automatically written to CVS also
+select * from EMP_BASIC;
+
+!spool off
