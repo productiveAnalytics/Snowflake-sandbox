@@ -60,7 +60,8 @@ copy into emp_basic
 #
 select count(*) from emp_basic;
 
-### --- Output as CVS ###
+
+### --- Output as CVS --- ###
 
 !set output_format=csv
 !set header=true
@@ -70,3 +71,19 @@ select count(*) from emp_basic;
 select * from EMP_BASIC;
 
 !spool off
+
+
+### --- Unload using Named stage --- ###
+
+CREATE STAGE my_own_staging_area;
+
+SHOW STAGES;
+
+COPY INTO @my_own_staging_area
+  FROM (SELECT * FROM emp_basic LIMIT 15)
+  FILE_FORMAT = (TYPE = parquet)
+  HEADER = true
+  OVERWRITE = true;
+
+LIST @my_own_staging_area;
+
