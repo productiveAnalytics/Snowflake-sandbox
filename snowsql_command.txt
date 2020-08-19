@@ -60,7 +60,8 @@ copy into emp_basic
 #
 select count(*) from emp_basic;
 
-### --- Output as CVS ###
+
+### --- Output as CVS --- ###
 
 !set output_format=csv
 !set header=true
@@ -70,3 +71,24 @@ select count(*) from emp_basic;
 select * from EMP_BASIC;
 
 !spool off
+
+
+### --- Unload using Named stage --- ###
+
+# create named stage
+CREATE STAGE my_own_staging_area;
+
+SHOW STAGES;
+
+# Copy data into named stage
+COPY INTO @my_own_staging_area
+  FROM (SELECT * FROM emp_basic LIMIT 15)
+  FILE_FORMAT = (TYPE = parquet)
+  HEADER = true
+  OVERWRITE = true;
+
+# Check the file available in named stage
+LIST @my_own_staging_area;
+
+# Download file from Named stage into local file system
+get @my_own_staging_area file:///Users/chawl001/Dev/scripts/snowflake/test_output/;
