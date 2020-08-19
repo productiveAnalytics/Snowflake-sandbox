@@ -92,3 +92,60 @@ LIST @my_own_staging_area;
 
 # Download file from Named stage into local file system
 get @my_own_staging_area file:///Users/chawl001/Dev/scripts/snowflake/test_output/;
+
+
+### --- Create external stage backed by Amazon S3 --- ###
+
+CREATE FILE FORMAT my_parquet_format
+  TYPE = 'PARQUET'
+  COMPRESSION = 'AUTO'
+  BINARY_AS_TEXT = TRUE;
+
+create or replace stage my_s3_stage
+  url='s3://lineardp-conformed-proposal-dev/test_load_to_snowflake/'
+  credentials=(aws_key_id='$AWS_ACCESS_KEY_ID' aws_secret_key='$AWS_SECRET_ACCESS_KEY')
+  file_format = (format_name = my_parquet_format);
+
+# Create COPY of original table
+CREATE OR REPLACE TABLE EMP_BASIC_PARQUET
+  AS SELECT * from EMP_BASIC where 1=0;
+
+describe EMP_BASIC_PARQUET;
+
+COPY INTO EMP_BASIC_PARQUET
+  FROM 
+  (select
+    $1:FIRST_NAME::varchar,
+    $1:LAST_NAME::varchar,
+    $1:EMAIL::varchar,
+    $1:STREETADDRESS::varchar,
+    $1:CITY::varchar,
+    $1:START_DATE::date
+  from @my_s3_stage)
+  file_format = (format_name = my_parquet_format);
+
+# Debug for data
+select
+  $1:FIRST_NAME::varchar FIRST_NAME,
+  $1:LAST_NAME::varchar LAST_NAME,
+  $1:EMAIL::varchar EMAIL,
+  $1:STREETADDRESS::varchar STREETADDRESS,
+  $1:CITY::varchar CITY,
+  $1:START_DATE::date START_DATE
+from @my_s3_stage;
+
+# Load from external S3 stage into internal Table stage
+COPY INTO @%emp_basic_parquet
+FROM 
+  (select
+    $1:FIRST_NAME::varchar FIRST_NAME,
+    $1:LAST_NAME::varchar LAST_NAME,
+    $1:EMAIL::varchar EMAIL,
+    $1:STREETADDRESS::varchar STREETADDRESS,
+    $1:CITY::varchar CITY,
+    $1:START_DATE::date START_DATE
+  from @my_s3_stage);
+
+# Load table from internal table stage
+COPY INTO emp_basic_parquet
+FROM @%emp_basic_parquet;
