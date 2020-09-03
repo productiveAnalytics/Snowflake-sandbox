@@ -10,7 +10,7 @@ use warehouse DEMO_WH;
 use database "LINEAR_POC_DB";
 
 # switch SCHEMA
-use schema LNR_POC:
+use schema LNR_POC;
 
 #
 # Confirm the promot to show: chawal#DEMO_WH@LINEAR_POC_DB.LNR_POC
