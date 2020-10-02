@@ -17,7 +17,11 @@ use schema LNR_POC;
 #
 select current_warehouse() My_Warehouse, current_database() My_Database, current_schema() My_Schema;
 
+# Show all Tables in Schema
+describe schema "LINEAR_POC_DB"."LNR_POC";
 
+# Describe particular table
+descibe table "LINEAR_POC_DB"."LNR_POC"."PRPSL";
 
 ### --- Create Table DDL --- ###
 
