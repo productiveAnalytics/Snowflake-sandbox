@@ -40,6 +40,10 @@ start_date date
 #
 describe table emp_basic;
 
+#
+# To get DDL from existing table
+#
+select get_ddl('table', 'PRPSL');
 
 ### --- LOAD data into STAGE --- ###
 
